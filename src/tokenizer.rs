@@ -31,7 +31,11 @@ pub fn tokenize_line(line: &str) -> Vec<Token> {
     let mut words = line.split_whitespace();
     let mut tokens = Vec::new();
     if let Some(first) = words.next() {
-        if ["rotate", "move", "scan", "fire", "if", "else", "while"].contains(&first) {
+        if [
+            "rotate", "move", "scan", "fire", "if", "else", "while", "loop",
+        ]
+        .contains(&first)
+        {
             tokens.push(Token::Keyword(first.to_string()));
         } else if let Ok(num) = first.parse::<i32>() {
             tokens.push(Token::Number(num));
