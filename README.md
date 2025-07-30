@@ -62,5 +62,3 @@ The simulator will execute a demo with two robots, each running its own script. 
 MIT License
 
 ---
-
-**Created by an expert engineer.**
