@@ -1,6 +1,19 @@
 // AST type definitions for the robot-battle DSL.
 // This module defines the core structures for representing parsed robot scripts.
 
+/// State for a robot in the simulation.
+#[derive(Debug, Clone)]
+pub struct Robot {
+    pub id: usize,            // Unique identifier for the robot
+    pub position: (i32, i32), // Example: x, y coordinates
+    pub direction: String,    // e.g., "forward", "backward", "left", "right"
+    pub health: i32,
+    pub command_queue: Vec<Command>, // Commands to execute (from AST)
+    pub busy_ticks: u32,             // Ticks remaining for current command
+    pub current_command: Option<Command>, // Command being executed
+                                     // Add more fields as needed (e.g., ammo, scan results, etc.)
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Command {
     /// Move the robot in a direction by a certain distance.
