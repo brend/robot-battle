@@ -63,6 +63,8 @@ loop {
         },
     ];
 
+    println!("Robot 1 instructions: {:?}", robots[0].instruction_queue);
+
     // Simulation loop
     let max_ticks = 20;
     for tick in 0..max_ticks {
@@ -80,61 +82,7 @@ loop {
             }
 
             // Execute one instruction per tick
-            if robot.ip < robot.instruction_queue.len() {
-                use ast::Instruction;
-                let instr = &robot.instruction_queue[robot.ip];
-                match instr {
-                    Instruction::MoveForward => {
-                        robot.position.1 += 1;
-                        robot.ip += 1;
-                    }
-                    Instruction::TurnLeft => {
-                        println!("Robot {} turns left", robot.id);
-                        robot.ip += 1;
-                    }
-                    Instruction::TurnRight => {
-                        println!("Robot {} turns right", robot.id);
-                        robot.ip += 1;
-                    }
-                    Instruction::Fire => {
-                        println!("Robot {} fires!", robot.id);
-                        robot.ip += 1;
-                    }
-                    Instruction::LoadCounter { reg, value } => {
-                        robot.registers.insert(reg.clone(), *value);
-                        robot.ip += 1;
-                    }
-                    Instruction::Dec { reg } => {
-                        if let Some(val) = robot.registers.get_mut(reg) {
-                            *val -= 1;
-                        }
-                        robot.ip += 1;
-                    }
-                    Instruction::Jnz { reg, label } => {
-                        let jump = match robot.registers.get(reg) {
-                            Some(val) => *val != 0,
-                            None => reg == "always",
-                        };
-                        if jump {
-                            if let Some(target) =
-                                robot.instruction_queue.iter().position(|i| match i {
-                                    Instruction::Label(l) => l == label,
-                                    _ => false,
-                                })
-                            {
-                                robot.ip = target;
-                            } else {
-                                robot.ip += 1;
-                            }
-                        } else {
-                            robot.ip += 1;
-                        }
-                    }
-                    Instruction::Label(_) => {
-                        robot.ip += 1;
-                    }
-                }
-            }
+            execute_robot_instruction(robot);
 
             // Interaction: If last instruction was Fire
             if robot.ip > 0
@@ -173,6 +121,65 @@ loop {
         if alive <= 1 {
             println!("Simulation ended at tick {}", tick);
             break;
+        }
+    }
+}
+
+/// Execute the instruction at the current instruction pointer for a robot.
+/// Advances the instruction pointer and updates robot state as needed.
+fn execute_robot_instruction(robot: &mut ast::Robot) {
+    use ast::Instruction;
+    if robot.ip < robot.instruction_queue.len() {
+        let instr = &robot.instruction_queue[robot.ip];
+        match instr {
+            Instruction::MoveForward => {
+                println!("Robot {} moves forward", robot.id);
+                robot.position.1 += 1;
+                robot.ip += 1;
+            }
+            Instruction::TurnLeft => {
+                println!("Robot {} turns left", robot.id);
+                robot.ip += 1;
+            }
+            Instruction::TurnRight => {
+                println!("Robot {} turns right", robot.id);
+                robot.ip += 1;
+            }
+            Instruction::Fire => {
+                println!("Robot {} fires!", robot.id);
+                robot.ip += 1;
+            }
+            Instruction::LoadCounter { reg, value } => {
+                robot.registers.insert(reg.clone(), *value);
+                robot.ip += 1;
+            }
+            Instruction::Dec { reg } => {
+                if let Some(val) = robot.registers.get_mut(reg) {
+                    *val -= 1;
+                }
+                robot.ip += 1;
+            }
+            Instruction::Jnz { reg, label } => {
+                let jump = match robot.registers.get(reg) {
+                    Some(val) => *val != 0,
+                    None => reg == "always",
+                };
+                if jump {
+                    if let Some(target) = robot.instruction_queue.iter().position(|i| match i {
+                        Instruction::Label(l) => l == label,
+                        _ => false,
+                    }) {
+                        robot.ip = target;
+                    } else {
+                        robot.ip += 1;
+                    }
+                } else {
+                    robot.ip += 1;
+                }
+            }
+            Instruction::Label(_) => {
+                robot.ip += 1;
+            }
         }
     }
 }
