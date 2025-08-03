@@ -1,5 +1,7 @@
 use crate::ast::Robot;
+use macroquad::math::Vec2;
 use macroquad::prelude::*;
+use macroquad::shapes::{DrawRectangleParams, draw_rectangle_ex};
 
 /// Size of the arena (in logical units)
 const ARENA_WIDTH: f32 = 400.0;
@@ -19,7 +21,7 @@ fn to_screen_coords(x: f32, y: f32, screen_w: f32, screen_h: f32) -> (f32, f32) 
     (sx, sy)
 }
 
-/// Draw a single robot as a rectangle (optionally rotated in the future)
+/// Draw a single robot as a rectangle, rotated according to its heading
 fn draw_robot(robot: &Robot, color: Color, screen_w: f32, screen_h: f32) {
     let (x, y) = (robot.position.0 as f32, robot.position.1 as f32);
     let (sx, sy) = to_screen_coords(x, y, screen_w, screen_h);
@@ -27,10 +29,20 @@ fn draw_robot(robot: &Robot, color: Color, screen_w: f32, screen_h: f32) {
     let rw = ROBOT_WIDTH / ARENA_WIDTH * screen_w;
     let rh = ROBOT_HEIGHT / ARENA_HEIGHT * screen_h;
 
-    // Center the rectangle on (sx, sy)
-    draw_rectangle(sx - rw / 2.0, sy - rh / 2.0, rw, rh, color);
+    // Use draw_rectangle_ex to rotate around the center using offset
+    draw_rectangle_ex(
+        sx - rw / 2.0,
+        sy - rh / 2.0,
+        rw,
+        rh,
+        DrawRectangleParams {
+            rotation: robot.heading,
+            offset: Vec2::new(0.5, 0.5),
+            color,
+        },
+    );
 
-    // Draw robot ID
+    // Draw robot ID (not rotated)
     let id_text = format!("{}", robot.id);
     draw_text(&id_text, sx - 8.0, sy - 8.0, 24.0, WHITE);
 }
