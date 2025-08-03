@@ -3,7 +3,7 @@
 //
 // Supports: move, rotate, scan, fire, loop { ... }
 
-use crate::ast::Command;
+use crate::ast::{Command, Section};
 use crate::tokenizer::Token;
 
 #[derive(Debug)]
@@ -45,7 +45,9 @@ pub fn parse_tokens(tokens: &[Token]) -> Result<Vec<Command>, ParseError> {
                 // rotate <section> <angle>
                 idx += 1;
                 let section = match tokens.get(idx) {
-                    Some(Token::Identifier(sec)) => sec.clone(),
+                    Some(Token::Keyword(k)) if k == "body" => Section::Body,
+                    Some(Token::Keyword(k)) if k == "turret" => Section::Turret,
+                    Some(Token::Keyword(k)) if k == "scanner" => Section::Scanner,
                     Some(tok) => return Err(ParseError::UnexpectedToken(tok.clone())),
                     None => return Err(ParseError::UnexpectedEOF),
                 };
@@ -171,7 +173,7 @@ mod tests {
                     distance: 5
                 },
                 Command::Rotate {
-                    section: "turret".to_string(),
+                    section: Section::Turret,
                     angle: 90
                 },
                 Command::Scan,

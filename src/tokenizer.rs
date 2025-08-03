@@ -37,11 +37,11 @@ pub fn tokenize_line(line: &str) -> Vec<Token> {
     let mut words = code.split_whitespace();
     let mut tokens = Vec::new();
     if let Some(first) = words.next() {
-        if [
-            "rotate", "move", "scan", "fire", "if", "else", "while", "loop",
-        ]
-        .contains(&first)
-        {
+        let keywords = [
+            "rotate", "move", "scan", "fire", "if", "else", "while", "loop", "body", "turret",
+            "scanner",
+        ];
+        if keywords.contains(&first) {
             tokens.push(Token::Keyword(first.to_string()));
         } else if let Ok(num) = first.parse::<i32>() {
             tokens.push(Token::Number(num));
@@ -55,6 +55,8 @@ pub fn tokenize_line(line: &str) -> Vec<Token> {
                 tokens.push(Token::Number(num));
             } else if word.len() == 1 && "{}()".contains(word) {
                 tokens.push(Token::Symbol(word.chars().next().unwrap()));
+            } else if keywords.contains(&word) {
+                tokens.push(Token::Keyword(word.to_string()));
             } else {
                 tokens.push(Token::Identifier(word.to_string()));
             }
@@ -97,7 +99,7 @@ mod tests {
             tokens,
             vec![
                 Token::Keyword("if".to_string()),
-                Token::Identifier("scan".to_string()),
+                Token::Keyword("scan".to_string()),
                 Token::Identifier(">".to_string()),
                 Token::Number(0),
                 Token::Symbol('{')
@@ -108,7 +110,7 @@ mod tests {
     #[test]
     fn test_tokenize_script_multiline() {
         let script = r#"
-rotate treads 90
+rotate body 90
 move forward 10
 scan
 fire
@@ -119,7 +121,7 @@ if scan > 0 {
         let tokens = tokenize_script(script);
         let expected = vec![
             Token::Keyword("rotate".to_string()),
-            Token::Identifier("treads".to_string()),
+            Token::Keyword("body".to_string()),
             Token::Number(90),
             Token::Keyword("move".to_string()),
             Token::Identifier("forward".to_string()),
@@ -127,7 +129,7 @@ if scan > 0 {
             Token::Keyword("scan".to_string()),
             Token::Keyword("fire".to_string()),
             Token::Keyword("if".to_string()),
-            Token::Identifier("scan".to_string()),
+            Token::Keyword("scan".to_string()),
             Token::Identifier(">".to_string()),
             Token::Number(0),
             Token::Symbol('{'),

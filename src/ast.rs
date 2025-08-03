@@ -15,11 +15,18 @@ pub struct Robot {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub enum Section {
+    Body,
+    Turret,
+    Scanner,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum Command {
     /// Move the robot in a direction by a certain distance.
     Move { direction: String, distance: i32 },
     /// Rotate a section (treads, turret, scanner) by an angle.
-    Rotate { section: String, angle: i32 },
+    Rotate { section: Section, angle: i32 },
     /// Scan for enemies.
     Scan,
     /// Fire weapon.
@@ -94,11 +101,13 @@ pub fn translate_commands_to_instructions(commands: &[Command]) -> Vec<Instructi
                 let reg = format!("rot{}", label_count);
                 let label = format!("turn_loop{}", label_count);
                 let turns = angle.abs();
-                let turn_instr = if *angle > 0 {
-                    Instruction::TurnLeft
-                } else {
-                    Instruction::TurnRight
+                let counter_clockwise = *angle >= 0;
+                let turn_instr = match (section, counter_clockwise) {
+                    (Section::Body, true) => Instruction::TurnLeft,
+                    (Section::Body, false) => Instruction::TurnRight,
+                    _ => panic!("Unsupported section for rotation"),
                 };
+
                 instructions.push(Instruction::LoadCounter {
                     reg: reg.clone(),
                     value: turns,
@@ -158,13 +167,13 @@ mod tests {
     #[test]
     fn test_rotate_command() {
         let cmd = Command::Rotate {
-            section: "turret".to_string(),
+            section: Section::Turret,
             angle: 90,
         };
         assert_eq!(
             cmd,
             Command::Rotate {
-                section: "turret".to_string(),
+                section: Section::Turret,
                 angle: 90
             }
         );
