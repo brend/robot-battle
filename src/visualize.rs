@@ -2,12 +2,12 @@ use crate::ast::Robot;
 use macroquad::prelude::*;
 
 /// Size of the arena (in logical units)
-const ARENA_WIDTH: f32 = 10.0;
-const ARENA_HEIGHT: f32 = 10.0;
+const ARENA_WIDTH: f32 = 400.0;
+const ARENA_HEIGHT: f32 = 400.0;
 
 /// Size of each robot (in logical units)
-const ROBOT_WIDTH: f32 = 0.8;
-const ROBOT_HEIGHT: f32 = 0.8;
+const ROBOT_WIDTH: f32 = 10.0;
+const ROBOT_HEIGHT: f32 = 10.0;
 
 /// Colors for robots
 const ROBOT_COLORS: [Color; 2] = [RED, BLUE];
@@ -38,7 +38,7 @@ fn draw_robot(robot: &Robot, color: Color, screen_w: f32, screen_h: f32) {
 /// Visualize the robots in the arena.
 /// This function runs a macroquad window and draws the robots in their positions.
 pub async fn visualize_robots(robots: &[Robot]) {
-    clear_background(DARKGRAY);
+    clear_background(BLACK);
 
     let screen_w = screen_width();
     let screen_h = screen_height();

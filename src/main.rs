@@ -4,7 +4,7 @@ mod tokenizer;
 mod visualize;
 
 const ROBOT_TURN_SPEED: f32 = 0.3;
-const ROBOT_MOVE_SPEED: f32 = 0.01;
+const ROBOT_MOVE_SPEED: f32 = 0.2;
 
 #[macroquad::main("Robot Battle")]
 async fn main() {
@@ -14,17 +14,17 @@ async fn main() {
     let script1 = r#"
 loop {
     move forward 10
-    rotate right 1
+    rotate main -1
 }
 "#;
 
-    //     let script2 = r#"
-    // loop {
-    //     move forward 2
-    //     fire
-    //     scan
-    // }
-    // "#;
+    let script2 = r#"
+    loop {
+        move forward 2
+        fire
+        scan
+    }
+    "#;
 
     // Tokenize and parse scripts
     let tokens1 = tokenizer::tokenize_script(script1);
@@ -33,17 +33,17 @@ loop {
         vec![]
     });
 
-    // let tokens2 = tokenizer::tokenize_script(script2);
-    // let ast2 = parser::parse_tokens(&tokens2).unwrap_or_else(|e| {
-    //     println!("Parse error for robot 2: {:?}", e);
-    //     vec![]
-    // });
+    let tokens2 = tokenizer::tokenize_script(script2);
+    let ast2 = parser::parse_tokens(&tokens2).unwrap_or_else(|e| {
+        println!("Parse error for robot 2: {:?}", e);
+        vec![]
+    });
 
     // Initialize robots with translated instructions, registers, and instruction pointer
     let mut robots = vec![
         Robot {
             id: 1,
-            position: (2.0, 2.0),
+            position: (100.0, 50.0),
             heading: 0.0,
             health: 10,
             instruction_queue: ast::translate_commands_to_instructions(&ast1),
@@ -53,18 +53,18 @@ loop {
             busy_ticks: 0,
             current_command: None,
         },
-        // Robot {
-        //     id: 2,
-        //     position: (200.0, 200.0),
-        //     heading: 0.0,
-        //     health: 10,
-        //     instruction_queue: ast::translate_commands_to_instructions(&ast2),
-        //     ip: 0,
-        //     registers: std::collections::HashMap::new(),
-        //     command_queue: ast2.clone(),
-        //     busy_ticks: 0,
-        //     current_command: None,
-        // },
+        Robot {
+            id: 2,
+            position: (200.0, 200.0),
+            heading: 0.0,
+            health: 10,
+            instruction_queue: ast::translate_commands_to_instructions(&ast2),
+            ip: 0,
+            registers: std::collections::HashMap::new(),
+            command_queue: ast2.clone(),
+            busy_ticks: 0,
+            current_command: None,
+        },
     ];
 
     println!("Robot 1 commands: {:?}", ast1);
@@ -109,14 +109,6 @@ loop {
                 robot.health -= dmg;
             }
         }
-
-        // Print robot states
-        // for robot in robots.iter() {
-        //     println!(
-        //         "Robot {}: pos={:?}, health={}, ip={}, registers={:?}",
-        //         robot.id, robot.position, robot.health, robot.ip, robot.registers
-        //     );
-        // }
 
         visualize::visualize_robots(&robots).await;
     }
