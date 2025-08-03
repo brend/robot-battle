@@ -1,30 +1,23 @@
+use std::f32::consts::PI;
+
 mod ast;
 mod parser;
 mod tokenizer;
 mod visualize;
 
-const ROBOT_TURN_SPEED: f32 = 0.3;
+const ROBOT_TURN_SPEED: f32 = PI / 180.0;
 const ROBOT_MOVE_SPEED: f32 = 0.2;
 
 #[macroquad::main("Robot Battle")]
 async fn main() {
     use ast::Robot;
 
-    // Example scripts for two robots
-    let script1 = r#"
-loop {
-    move forward 10
-    rotate main -1
-}
-"#;
+    // Load script from file for both robots
+    use std::fs;
 
-    let script2 = r#"
-    loop {
-        move forward 2
-        fire
-        scan
-    }
-    "#;
+    let script_path = "robot-scripts/circler.robo";
+    let script1 = &fs::read_to_string(script_path).expect("Failed to read robot script file");
+    let script2 = script1;
 
     // Tokenize and parse scripts
     let tokens1 = tokenizer::tokenize_script(script1);
@@ -49,9 +42,6 @@ loop {
             instruction_queue: ast::translate_commands_to_instructions(&ast1),
             ip: 0,
             registers: std::collections::HashMap::new(),
-            command_queue: ast1.clone(),
-            busy_ticks: 0,
-            current_command: None,
         },
         Robot {
             id: 2,
@@ -61,14 +51,8 @@ loop {
             instruction_queue: ast::translate_commands_to_instructions(&ast2),
             ip: 0,
             registers: std::collections::HashMap::new(),
-            command_queue: ast2.clone(),
-            busy_ticks: 0,
-            current_command: None,
         },
     ];
-
-    println!("Robot 1 commands: {:?}", ast1);
-    println!("Robot 1 instructions: {:?}", robots[0].instruction_queue);
 
     // Simulation loop
     loop {
@@ -103,12 +87,11 @@ loop {
         }
 
         // Apply damage after borrow ends
-        for (firing_id, target_id, idx, dmg) in damage_events {
-            println!("Robot {} fires at Robot {}!", firing_id, target_id);
-            if let Some(robot) = robots.get_mut(idx) {
-                robot.health -= dmg;
-            }
-        }
+        // for (firing_id, target_id, idx, dmg) in damage_events {
+        //     if let Some(robot) = robots.get_mut(idx) {
+        //         robot.health -= dmg;
+        //     }
+        // }
 
         visualize::visualize_robots(&robots).await;
     }
@@ -122,26 +105,19 @@ fn execute_robot_instruction(robot: &mut ast::Robot) {
         let instr = &robot.instruction_queue[robot.ip];
         match instr {
             Instruction::MoveForward => {
-                println!(
-                    "Robot {} moves forward with heading {}",
-                    robot.id, robot.heading
-                );
                 robot.position.0 += ROBOT_MOVE_SPEED * robot.heading.cos();
                 robot.position.1 += ROBOT_MOVE_SPEED * robot.heading.sin();
                 robot.ip += 1;
             }
             Instruction::TurnLeft => {
-                println!("Robot {} turns left", robot.id);
                 robot.heading -= ROBOT_TURN_SPEED;
                 robot.ip += 1;
             }
             Instruction::TurnRight => {
-                println!("Robot {} turns right", robot.id);
                 robot.heading += ROBOT_TURN_SPEED;
                 robot.ip += 1;
             }
             Instruction::Fire => {
-                println!("Robot {} fires!", robot.id);
                 robot.ip += 1;
             }
             Instruction::LoadCounter { reg, value } => {

@@ -12,11 +12,6 @@ pub struct Robot {
     pub instruction_queue: Vec<Instruction>, // Instructions to execute
     pub ip: usize,                           // Instruction pointer
     pub registers: std::collections::HashMap<String, i32>, // Counter registers
-    // Optionally keep AST for reference or debugging:
-    pub command_queue: Vec<Command>, // Commands to execute (from AST)
-    pub busy_ticks: u32,             // Ticks remaining for current command
-    pub current_command: Option<Command>, // Command being executed
-                                     // Add more fields as needed (e.g., ammo, scan results, etc.)
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -30,9 +25,9 @@ pub enum Command {
     /// Fire weapon.
     Fire,
     /// Infinite loop: executes the block repeatedly.
-    Loop { block: Vec<Command> },
+    Loop { block: Block },
     // Future extensions:
-    // If { condition: Expr, block: Vec<Command>, else_block: Option<Vec<Command>> },
+    // If { condition: Expr, block: Block, else_block: Option<Block> },
     // Assignment { name: String, expr: Expr },
     // Let { name: String, expr: Expr },
 }

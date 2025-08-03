@@ -28,7 +28,13 @@ pub enum Token {
 
 /// Tokenizes a single line of robot DSL code.
 pub fn tokenize_line(line: &str) -> Vec<Token> {
-    let mut words = line.split_whitespace();
+    // Remove comments: split at '#' and take the part before it
+    let code = match line.find('#') {
+        Some(idx) => &line[..idx],
+        None => line,
+    };
+
+    let mut words = code.split_whitespace();
     let mut tokens = Vec::new();
     if let Some(first) = words.next() {
         if [

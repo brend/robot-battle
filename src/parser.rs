@@ -9,6 +9,7 @@ use crate::tokenizer::Token;
 #[derive(Debug)]
 pub enum ParseError {
     UnexpectedEOF,
+    #[allow(dead_code)]
     UnexpectedToken(Token),
     InvalidCommand,
 }
@@ -104,7 +105,7 @@ pub fn parse_tokens(tokens: &[Token]) -> Result<Vec<Command>, ParseError> {
                 // Block delimiters are handled in loop parsing, skip them here
                 idx += 1;
             }
-            Token::Keyword(k) => {
+            Token::Keyword(_) => {
                 return Err(ParseError::InvalidCommand);
             }
             _ => {

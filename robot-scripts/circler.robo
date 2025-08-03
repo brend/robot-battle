@@ -1,0 +1,6 @@
+# This is a simple robot script
+# that makes the robot move in a circle.
+loop {
+    move forward 2    # Move the robot forward by 2 units
+    rotate main 6     # Rotate the robot by 6 degree counterclockwise
+}
