@@ -64,5 +64,17 @@ pub async fn visualize_robots(robots: &[Robot]) {
         draw_robot(robot, color, screen_w, screen_h);
     }
 
+    // Draw HUD for each robot
+    let mut hud_y = 20.0;
+    for (i, robot) in robots.iter().enumerate() {
+        let color = ROBOT_COLORS.get(i).copied().unwrap_or(GREEN);
+        let hud_text = format!(
+            "Robot {:>2} | Pos: ({:>6.1}, {:>6.1}) | Heading: {:>7.2}",
+            robot.id, robot.position.0, robot.position.1, robot.heading
+        );
+        draw_text(&hud_text, 20.0, hud_y, 28.0, color);
+        hud_y += 32.0;
+    }
+
     next_frame().await;
 }
