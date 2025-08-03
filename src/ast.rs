@@ -4,9 +4,9 @@
 /// State for a robot in the simulation.
 #[derive(Debug, Clone)]
 pub struct Robot {
-    pub id: usize,            // Unique identifier for the robot
-    pub position: (i32, i32), // Example: x, y coordinates
-    pub direction: String,    // e.g., "forward", "backward", "left", "right"
+    pub id: usize, // Unique identifier for the robot
+    pub position: (f32, f32),
+    pub heading: f32,
     pub health: i32,
     // Assembly-like execution state:
     pub instruction_queue: Vec<Instruction>, // Instructions to execute

@@ -10,10 +10,6 @@ use crate::tokenizer::Token;
 pub enum ParseError {
     UnexpectedEOF,
     UnexpectedToken(Token),
-    ExpectedSymbol(char),
-    ExpectedNumber,
-    ExpectedIdentifier,
-    ExpectedKeyword(&'static str),
     InvalidCommand,
 }
 
